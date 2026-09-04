@@ -31,13 +31,18 @@
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 ::selection {
   background-color: #c7d2fe;
 }
 
 body {
   min-height: 100vh;
-  overflow-x: hidden;
   background:
     radial-gradient(circle at 8% 7%, rgb(196 181 253 / 0.25), transparent 27rem),
     radial-gradient(circle at 90% 12%, rgb(103 232 249 / 0.18), transparent 25rem),

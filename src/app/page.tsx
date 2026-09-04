@@ -17,27 +17,27 @@ const steps = [
 export default function LandingPage() {
   return (
     <main className="aurora-grid min-h-screen overflow-hidden">
-      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
-        <Link href="/" className="group flex items-center gap-2 font-display text-xl font-semibold tracking-tight">
+      <header className="relative z-10 mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-y-3 px-4 py-4 sm:px-8 sm:py-5">
+        <Link href="/" className="group flex shrink-0 items-center gap-2 font-display text-lg font-semibold tracking-tight sm:text-xl">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-cyan-500 text-sm text-white shadow-lg shadow-indigo-500/25 transition group-hover:scale-105">V</span>
           VidyaAI
         </Link>
-        <nav className="flex items-center gap-2 text-sm font-semibold sm:gap-4">
+        <nav className="flex items-center justify-end gap-1 text-xs font-semibold sm:gap-4 sm:text-sm">
           <a href="#features" className="hidden rounded-full px-3 py-2 text-ink/65 transition hover:bg-surface hover:text-ink sm:inline">Explore</a>
           <ThemeToggle />
-          <Link href="/login" className="rounded-full px-3 py-2 text-ink/70 transition hover:bg-surface hover:text-ink">Log in</Link>
-          <Link href="/signup" className="rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-600 px-4 py-2.5 text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:from-indigo-500 hover:to-cyan-500 hover:shadow-xl hover:shadow-indigo-500/40">Get started</Link>
+          <Link href="/login" className="rounded-full px-2 py-2 text-ink/70 transition hover:bg-surface hover:text-ink sm:px-3">Log in</Link>
+          <Link href="/signup" className="rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-600 px-3 py-2.5 text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:from-indigo-500 hover:to-cyan-500 hover:shadow-xl hover:shadow-indigo-500/40 sm:px-4">Get started</Link>
         </nav>
       </header>
 
-      <section className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-20 pt-12 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:pt-20">
+      <section className="relative mx-auto grid max-w-7xl gap-9 px-4 pb-14 pt-9 sm:gap-12 sm:px-8 sm:pb-20 sm:pt-12 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:pt-20">
         <div className="relative z-[1]">
           <p className="inline-flex items-center gap-2 rounded-full border border-indigo-200/70 bg-surface/75 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-indigo-700 shadow-sm dark:border-indigo-400/20 dark:text-indigo-200"><Sparkles size={14} /> College learning, reimagined</p>
-          <h1 className="mt-6 max-w-3xl font-display text-5xl font-semibold leading-[0.98] tracking-tight text-ink sm:text-6xl lg:text-7xl">A clearer mind.<br /><span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 bg-clip-text text-transparent">A stronger semester.</span></h1>
+          <h1 className="mt-5 max-w-3xl font-display text-4xl font-semibold leading-[0.98] tracking-tight text-ink min-[390px]:text-5xl sm:mt-6 sm:text-6xl lg:text-7xl">A clearer mind.<br /><span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 bg-clip-text text-transparent">A stronger semester.</span></h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-ink/65 sm:text-lg">VidyaAI brings together a patient AI tutor, focused study tools, and supportive wellbeing guidance—so college feels more manageable, one step at a time.</p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:shadow-indigo-500/40">Start learning free <ArrowRight size={17} /></Link>
-            <a href="#how" className="rounded-full border border-indigo-200 bg-surface/70 px-6 py-3.5 text-sm font-bold text-indigo-700 transition hover:bg-indigo-50 dark:border-indigo-400/20 dark:text-indigo-200">See how it works</a>
+          <div className="mt-8 grid gap-3 min-[390px]:flex min-[390px]:flex-wrap min-[390px]:items-center">
+            <Link href="/signup" className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:shadow-indigo-500/40">Start learning free <ArrowRight size={17} /></Link>
+            <a href="#how" className="rounded-full border border-indigo-200 bg-surface/70 px-6 py-3.5 text-center text-sm font-bold text-indigo-700 transition hover:bg-indigo-50 dark:border-indigo-400/20 dark:text-indigo-200">See how it works</a>
           </div>
           <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-ink/65"><span className="inline-flex items-center gap-2"><ShieldCheck size={17} className="text-emerald-500" /> Private by design</span><span className="inline-flex items-center gap-2"><MessageSquareText size={17} className="text-cyan-500" /> Help when you need it</span></div>
         </div>

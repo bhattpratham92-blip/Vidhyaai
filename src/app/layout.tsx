@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Fraunces, Manrope } from 'next/font/google';
 import { AuthProvider } from '@/lib/hooks/useAuth';
 import './globals.css';
@@ -19,6 +19,15 @@ export const metadata: Metadata = {
   title: 'VidyaAI — Your 24/7 AI Teacher',
   description:
     'AI-powered learning platform for CBSE, ICSE, and State Board students — deep, step-by-step teaching in English, Hindi, and Gujarati.',
+};
+
+// Explicitly set the mobile viewport rather than relying on a browser's
+// fallback. This prevents a phone from rendering the desktop-width canvas
+// and shrinking it to fit.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
