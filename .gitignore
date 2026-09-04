@@ -1,0 +1,16 @@
+# Dependencies and Next.js build output
+node_modules/
+.next/
+out/
+
+# Private configuration and Firebase credentials
+.env
+.env.*
+!.env.example
+service-account*.json
+firebase-debug.log
+
+# Local and generated files
+*.tsbuildinfo
+.DS_Store
+

@@ -1,0 +1,162 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function myRole() {
+      return myProfile().role;
+    }
+
+    function isSelf(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isParentOf(studentUid) {
+      return isSignedIn() && myRole() == 'parent' &&
+        studentUid in myProfile().childIds;
+    }
+
+    function isTeacherAtSameSchool(targetSchoolId) {
+      return isSignedIn() && myRole() == 'teacher' &&
+        myProfile().schoolId == targetSchoolId;
+    }
+
+    // ---- users ----
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isParentOf(uid) ||
+        isTeacherAtSameSchool(resource.data.schoolId);
+      // Public registration can create only a student profile for the owner
+      // of the verified university address. Roles and school are immutable so
+      // a browser client cannot self-promote to teacher or administrator.
+      allow create: if isSelf(uid) &&
+        request.resource.data.uid == uid &&
+        request.resource.data.role == 'student' &&
+        request.resource.data.email == request.auth.token.email &&
+        request.auth.token.email.matches('.*@gnu\\.ac\\.in');
+      allow update: if isSelf(uid) &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.email == resource.data.email &&
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.schoolId == resource.data.schoolId;
+      allow delete: if false; // never hard-delete; deactivate via school_admin flow instead
+    }
+
+    // ---- schools ----
+    // Guardian objects are exclusively mediated by server routes. This keeps
+    // invitation state, alert records, and their minimum-necessary fields
+    // out of direct browser queries.
+    match /guardianProfiles/{guardianId} { allow read, write: if false; }
+    match /guardianConnections/{connectionId} { allow read, write: if false; }
+    match /guardianEvents/{eventId} { allow read, write: if false; }
+
+    // ---- schools ----
+    match /schools/{schoolId} {
+      allow read: if isSignedIn() && myProfile().schoolId == schoolId;
+      allow write: if isSignedIn() && myRole() == 'school_admin' &&
+        schoolId in [myProfile().schoolId];
+    }
+
+    // ---- tutorSessions: student owns their own doubt history ----
+    match /tutorSessions/{sessionId} {
+      allow read: if isSignedIn() && (
+        resource.data.studentId == request.auth.uid ||
+        isParentOf(resource.data.studentId) ||
+        isTeacherAtSameSchool(resource.data.schoolId)
+      );
+      allow create: if isSignedIn() && request.resource.data.studentId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.studentId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // ---- chapterNotes: readable by anyone in the school, written by AI/teachers ----
+    match /chapterNotes/{noteId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && myRole() in ['teacher', 'school_admin'];
+    }
+
+    // ---- quizzes ----
+    match /quizzes/{quizId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && myRole() in ['teacher', 'school_admin'];
+    }
+
+    // ---- quizAttempts: student writes their own, teacher/parent read ----
+    match /quizAttempts/{attemptId} {
+      allow read: if isSignedIn() && (
+        resource.data.studentId == request.auth.uid ||
+        isParentOf(resource.data.studentId) ||
+        isTeacherAtSameSchool(resource.data.schoolId) ||
+        (myRole() == 'school_admin' && myProfile().schoolId == resource.data.schoolId)
+      );
+      allow create: if isSignedIn() && request.resource.data.studentId == request.auth.uid;
+      allow update: if false; // attempts are immutable once submitted
+      allow delete: if false;
+    }
+
+    // ---- studyPlans / analyticsSnapshots: system-generated, read-only to users ----
+    // Doc IDs are `{studentId}_{weekOf}` — checking the ID prefix (rather than
+    // resource.data.studentId) lets a student read their OWN doc even before
+    // it's ever been generated. Firestore evaluates rules on every read
+    // attempt regardless of whether the document exists, and resource.data
+    // is null for a nonexistent doc — so a rule that only checks
+    // resource.data.studentId denies (throws permission-denied) the very
+    // first time a student's dashboard checks "do I have a plan yet?",
+    // before anything has ever been written for them.
+    match /studyPlans/{planId} {
+      allow read: if isSignedIn() && (
+        planId.matches(request.auth.uid + '_.*') ||
+        (resource != null && isParentOf(resource.data.studentId)) ||
+        (resource != null && isTeacherAtSameSchool(resource.data.schoolId)) ||
+        (resource != null && myRole() == 'school_admin' && myProfile().schoolId == resource.data.schoolId)
+      );
+      allow write: if false; // only written by trusted server (Admin SDK bypasses rules)
+    }
+
+    match /analyticsSnapshots/{snapshotId} {
+      allow read: if isSignedIn() && (
+        snapshotId.matches(request.auth.uid + '_.*') ||
+        (resource != null && isParentOf(resource.data.studentId)) ||
+        (resource != null && isTeacherAtSameSchool(resource.data.schoolId)) ||
+        (resource != null && myRole() == 'school_admin' && myProfile().schoolId == resource.data.schoolId)
+      );
+      allow write: if false;
+    }
+
+    // ---- syllabus: shared curriculum reference data, seeded via script ----
+    match /syllabus/{syllabusId} {
+      allow read: if isSignedIn();
+      allow write: if false; // only scripts/seedSyllabus.ts (Admin SDK) writes this
+    }
+
+    // ---- usageCounters: daily quota tracking, server-write only ----
+    match /usageCounters/{counterId} {
+      allow read: if isSignedIn() && resource.data.studentId == request.auth.uid;
+      allow write: if false; // only the Admin SDK (checkAndConsumeUsage) writes this
+    }
+
+    // ---- tutorCache: shared answer cache, harmless to read, server-write only ----
+    match /tutorCache/{cacheKey} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // ---- counselingBookings: private requests made by a student ----
+    match /counselingBookings/{bookingId} {
+      allow read: if isSignedIn() && resource.data.studentId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.studentId == request.auth.uid;
+      allow update, delete: if false;
+    }
+  }
+}

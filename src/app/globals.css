@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Manrope', sans-serif;
+  color-scheme: light;
+
+  /* Semantic color tokens, as "R G B" triplets (no commas — required for
+   * Tailwind's rgb(var(--x) / <alpha-value>) opacity syntax). Every existing
+   * bg-paper / text-ink / bg-mist / bg-white / border-ink class across the
+   * whole app reads from these — swapping them in .dark below is what makes
+   * dark mode work everywhere at once, with zero changes to any page or
+   * component that was already built. */
+  --color-paper: 247 248 255;   /* app background */
+  --color-ink: 24 27 52;        /* primary text */
+  --color-mist: 237 239 251;    /* subtle background (inputs, hover states) */
+  --color-surface: 255 255 255; /* card/panel background — this IS Tailwind's "white" in this app */
+}
+
+.dark {
+  color-scheme: dark;
+  --color-paper: 12 15 31;
+  --color-ink: 237 239 255;
+  --color-mist: 28 32 55;
+  --color-surface: 20 24 45;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: #c7d2fe;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 8% 7%, rgb(196 181 253 / 0.25), transparent 27rem),
+    radial-gradient(circle at 90% 12%, rgb(103 232 249 / 0.18), transparent 25rem),
+    rgb(var(--color-paper));
+}
+
+/* Keep controls comfortably tappable and account for iPhone safe areas. */
+@media (max-width: 639px) {
+  button,
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 8% 7%, rgb(109 40 217 / 0.22), transparent 27rem),
+    radial-gradient(circle at 90% 12%, rgb(8 145 178 / 0.14), transparent 25rem),
+    rgb(var(--color-paper));
+}
+
+.aurora-grid {
+  background-image: linear-gradient(rgb(99 102 241 / 0.055) 1px, transparent 1px), linear-gradient(90deg, rgb(99 102 241 / 0.055) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Authentication pages intentionally use their own fixed dark palette.
+ * `bg-ink` is a semantic foreground token and becomes light in dark mode;
+ * it must not be used as a dark promotional panel background. */
+.auth-shell {
+  background:
+    radial-gradient(circle at 12% 8%, rgb(124 58 237 / 0.22), transparent 30rem),
+    radial-gradient(circle at 88% 88%, rgb(6 182 212 / 0.14), transparent 31rem),
+    rgb(var(--color-paper));
+}
+
+.auth-card {
+  border: 1px solid rgb(99 102 241 / 0.20);
+  background: rgb(var(--color-surface) / 0.94);
+  box-shadow: 0 30px 80px rgb(15 23 42 / 0.24);
+}
+
+.auth-aside {
+  background:
+    radial-gradient(circle at 92% 8%, rgb(139 92 246 / 0.55), transparent 16rem),
+    radial-gradient(circle at 8% 95%, rgb(34 211 238 / 0.24), transparent 18rem),
+    linear-gradient(145deg, #171b42 0%, #11152f 52%, #0b1024 100%);
+}
+
+.dark .auth-card {
+  border-color: rgb(129 140 248 / 0.24);
+  box-shadow: 0 30px 90px rgb(0 0 0 / 0.42);
+}
+
+.glass-card {
+  background: rgb(var(--color-surface) / 0.78);
+  border: 1px solid rgb(255 255 255 / 0.58);
+  box-shadow: 0 20px 50px rgb(55 48 163 / 0.11);
+  backdrop-filter: blur(18px);
+}
+
+.dark .glass-card {
+  border-color: rgb(255 255 255 / 0.08);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.25);
+}
+
+.aurora-input {
+  width: 100%;
+  border: 1px solid rgb(99 102 241 / 0.26);
+  border-radius: 0.85rem;
+  background: rgb(var(--color-paper) / 0.92);
+  padding: 0.72rem 0.85rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.aurora-input:focus {
+  border-color: #6366f1;
+  background: rgb(var(--color-surface));
+  box-shadow: 0 0 0 4px rgb(99 102 241 / 0.12);
+}
+
+.dark .aurora-input {
+  border-color: rgb(129 140 248 / 0.30);
+  background: rgb(7 11 31 / 0.70);
+  color: rgb(248 250 252);
+}
+
+.dark .aurora-input::placeholder {
+  color: rgb(203 213 225 / 0.60);
+}
+
+/* Visible keyboard focus everywhere — accessibility floor, non-negotiable */
+:focus-visible {
+  outline: 2px solid #3730a9;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
