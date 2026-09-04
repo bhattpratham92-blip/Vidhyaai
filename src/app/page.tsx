@@ -40,9 +40,21 @@ export default function LandingPage() {
             <a href="#how" className="rounded-full border border-indigo-200 bg-surface/70 px-6 py-3.5 text-center text-sm font-bold text-indigo-700 transition hover:bg-indigo-50 dark:border-indigo-400/20 dark:text-indigo-200">See how it works</a>
           </div>
           <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-ink/65"><span className="inline-flex items-center gap-2"><ShieldCheck size={17} className="text-emerald-500" /> Private by design</span><span className="inline-flex items-center gap-2"><MessageSquareText size={17} className="text-cyan-500" /> Help when you need it</span></div>
+
+          {/* A short, app-like entry point keeps the first phone screen calm.
+              The detailed conversation preview below remains useful on larger
+              displays, where there is space to read it comfortably. */}
+          <article className="glass-card mt-7 rounded-[1.5rem] p-4 sm:hidden">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25"><BrainCircuit size={19} /></span><div className="min-w-0"><p className="font-display text-lg font-semibold">AI Tutor</p><p className="truncate text-xs text-ink/55">Ready when you are</p></div></div>
+              <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">Online</span>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-ink/65">Ask a question, share a photo, or practise a topic in the way that works for you.</p>
+            <Link href="/signup" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white">Open your study space <ArrowRight size={16} /></Link>
+          </article>
         </div>
 
-        <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
+        <div className="relative mx-auto hidden w-full max-w-xl sm:block lg:max-w-none">
           <div aria-hidden="true" className="absolute -inset-8 rounded-full bg-gradient-to-tr from-indigo-500/25 via-violet-400/20 to-cyan-300/30 blur-3xl" />
           <div className="glass-card relative overflow-hidden rounded-[2rem] p-4 sm:p-6">
             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-indigo-500/15 via-violet-400/10 to-cyan-400/15" />
