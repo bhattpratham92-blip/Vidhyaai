@@ -37,6 +37,33 @@ body {
   overflow-x: hidden;
 }
 
+/* AppsGeyser uses an Android WebView, where the native scrollbar can stay
+ * bright white after dark mode is enabled. Give its track and thumb the same
+ * semantic colours as the page so it remains visible without looking like a
+ * white border. */
+html {
+  scrollbar-color: rgb(99 102 241 / 0.65) rgb(var(--color-paper));
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--color-paper));
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid rgb(var(--color-paper));
+  border-radius: 999px;
+  background: rgb(99 102 241 / 0.65);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(79 70 229 / 0.9);
+}
+
 ::selection {
   background-color: #c7d2fe;
 }
