@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { BrainCircuit, Lightbulb, Send, Sparkles } from 'lucide-react';
+import { BrainCircuit, Lightbulb, PanelLeft, Send, Sparkles } from 'lucide-react';
 import { CrisisSafetyModal } from '@/components/safety/CrisisSafetyModal';
 import { hasImmediateSafetyConcern } from '@/lib/safety/crisis';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -20,9 +20,10 @@ interface Props {
   // with key={initialSession?.id || 'new'} from the parent so React remounts
   // (and resets local state) cleanly when the student switches sessions.
   initialSession?: TutorSession | null;
+  onOpenHistory?: () => void;
 }
 
-export function ChatInterface({ initialSession }: Props) {
+export function ChatInterface({ initialSession, onOpenHistory }: Props) {
   const { firebaseUser, profile } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>(initialSession?.messages || []);
   const [sessionId, setSessionId] = useState<string | undefined>(initialSession?.id);
@@ -279,6 +280,7 @@ export function ChatInterface({ initialSession }: Props) {
         </div>
         <LevelSelector value={level} onChange={setLevel} />
         <div className="flex items-center gap-3">
+          {onOpenHistory && <button type="button" onClick={onOpenHistory} className="rounded-xl border border-indigo-200 bg-white p-2 text-indigo shadow-sm dark:border-indigo-400/20 dark:bg-surface sm:hidden" aria-label="Open previous chats"><PanelLeft size={18} /></button>}
           <LanguageSelector value={language} onChange={setLanguage} />
           {remaining !== null && (
             <span
