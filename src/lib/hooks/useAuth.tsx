@@ -12,7 +12,7 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/client';
 import { stripUndefined } from '@/lib/utils/firestore';
-import type { UserProfile, Role, Stream, TrustedContact } from '@/lib/types';
+import type { UserProfile, Role, Stream, TrustedContact, GitaAddress } from '@/lib/types';
 
 interface AuthContextValue {
   firebaseUser: User | null;
@@ -29,8 +29,10 @@ interface AuthContextValue {
     board?: UserProfile['board'];
     stream?: Stream;
     section?: string;
+    gitaAddress?: GitaAddress;
     trustedContact: Omit<TrustedContact, 'photoUrl'>;
   }) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -69,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     board?: UserProfile['board'];
     stream?: Stream;
     section?: string;
+    gitaAddress?: GitaAddress;
     trustedContact: Omit<TrustedContact, 'photoUrl'>;
   }) {
     // Keep Firebase Auth and the profile document in the same canonical form.
@@ -86,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       stream: params.stream,
       section: params.section,
       preferredLanguage: 'en',
+      gitaAddress: params.gitaAddress,
       createdAt: Date.now(),
       lastActiveAt: Date.now(),
       trustedContact: params.trustedContact,
@@ -102,8 +106,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await firebaseSignOut(auth);
   }
 
+  async function refreshProfile() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    setProfile(snap.exists() ? (snap.data() as UserProfile) : null);
+  }
+
   return (
-    <AuthContext.Provider value={{ firebaseUser, profile, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ firebaseUser, profile, loading, signIn, signUp, refreshProfile, signOut }}>
       {children}
     </AuthContext.Provider>
   );

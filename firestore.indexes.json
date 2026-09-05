@@ -9,6 +9,14 @@
       ]
     },
     {
+      "collectionGroup": "wellbeingSessions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "studentId", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "quizAttempts",
       "queryScope": "COLLECTION",
       "fields": [

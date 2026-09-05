@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { adminDb, verifyGuardianPhoneAuth, verifyRequestAuth } from '@/lib/firebase/admin';
 import type { GuardianConnection, GuardianEvent, GuardianPermissions, UserProfile } from '@/lib/types';
 import { normalizeGuardianPhone } from '@/lib/utils/phone';
+import { dispatchDueGuardianEvents } from '@/lib/safety/guardianEvent';
 
 export const runtime = 'nodejs';
 
@@ -38,6 +39,10 @@ export async function GET(request: NextRequest) {
     const eventIds = new Set(connections.filter((item) => item.status === 'ACTIVE').map((item) => item.studentId));
     // Sort this small, Guardian-scoped result in memory so local development
     // and new Firebase projects do not need a composite Firestore index.
+    // The dashboard is the sandbox notification channel. Its three-second
+    // heartbeat first promotes only server-flagged events whose hold window
+    // has elapsed, then returns them to the verified guardian.
+    await dispatchDueGuardianEvents([...eventIds]);
     const events = eventIds.size
       ? (await db.collection('guardianEvents').where('studentId', 'in', [...eventIds].slice(0, 10)).get()).docs
         .map((doc) => ({ id: doc.id, ...doc.data() } as GuardianEvent))

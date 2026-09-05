@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { ArrowRight, BrainCircuit, LockKeyhole, Sparkles } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [gitaAddress, setGitaAddress] = useState<'sakha' | 'sakhi'>('sakha');
   const [error, setError] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,12 @@ export default function LoginPage() {
       const uid = auth.currentUser?.uid;
       const snap = uid ? await getDoc(doc(db, 'users', uid)) : null;
       const profile = snap?.exists() ? (snap.data() as UserProfile) : null;
+
+      // This is a small, optional preference rather than a broader identity
+      // field. It keeps Gita-mode greetings predictable for returning users.
+      if (uid && profile?.role === 'student' && profile.gitaAddress !== gitaAddress) {
+        await updateDoc(doc(db, 'users', uid), { gitaAddress });
+      }
 
       if (profile?.role === 'student') {
         router.push('/tutor');
@@ -111,6 +118,7 @@ export default function LoginPage() {
               className="aurora-input mt-1.5"
             />
           </div>
+          <label className="block text-sm font-bold">Bhagavad Gita mode greeting<select value={gitaAddress} onChange={(event) => setGitaAddress(event.target.value as 'sakha' | 'sakhi')} className="aurora-input mt-1.5 font-normal"><option value="sakha">Boy · Sakha</option><option value="sakhi">Girl · Sakhi</option></select><span className="mt-1 block text-xs font-normal text-ink/60">Used only when Bhagavad Gita mode is on.</span></label>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
           {resetMessage && <p className="text-sm text-leaf">{resetMessage}</p>}

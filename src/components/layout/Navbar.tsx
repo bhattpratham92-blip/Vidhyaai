@@ -20,6 +20,7 @@ export function Navbar() {
         { href: '/leaderboard', label: 'Leaderboard' },
         { href: '/dashboard/student', label: 'Study Plan' },
         { href: '/counseling', label: 'Wellbeing' },
+        { href: '/settings', label: 'Profile & settings' },
         { href: '/student/guardian', label: 'Guardian & privacy' },
       ]
     : profile?.role === 'guardian'

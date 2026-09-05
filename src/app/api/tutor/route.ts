@@ -9,6 +9,7 @@ import { buildCacheKey, getCachedAnswer, recordCacheHit, setCachedAnswer } from 
 import { stripUndefined } from '@/lib/utils/firestore';
 import { hasImmediateSafetyConcern } from '@/lib/safety/crisis';
 import { createGuardianSandboxEvent } from '@/lib/safety/guardianEvent';
+import { assessSemanticSafetyRisk } from '@/lib/safety/semanticRisk';
 import type { ChatMessage, ExplainLevel, Language, TutorSession } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -54,6 +55,18 @@ export async function POST(req: NextRequest) {
   if (hasImmediateSafetyConcern(body.message)) {
     await createGuardianSandboxEvent(decoded.uid, body.message);
     return Response.json({ error: 'Immediate safety support is required.', code: 'immediate_safety_concern' }, { status: 400 });
+  }
+
+  // Indirect wording can still communicate an urgent risk. This server-side
+  // triage runs before the normal tutor, cache, and session paths so a
+  // modified browser cannot bypass the support flow.
+  const semanticRisk = await assessSemanticSafetyRisk(body.message);
+  if (semanticRisk === 'IMMINENT_SELF' || semanticRisk === 'IMMINENT_OTHER') {
+    await createGuardianSandboxEvent(decoded.uid, body.message, semanticRisk === 'IMMINENT_OTHER' ? 'IMMINENT_HARM_TO_OTHERS' : 'IMMINENT_SELF_HARM');
+    return Response.json({ error: 'Immediate safety support is required.', code: 'immediate_safety_concern' }, { status: 400 });
+  }
+  if (semanticRisk === 'CHECK_IN') {
+    return Response.json({ error: 'Before we continue: are you thinking about hurting yourself or someone else right now, or do you feel unable to stay safe? If yes, contact emergency services or a trusted person who can be with you now.', code: 'safety_check_in' }, { status: 400 });
   }
 
   // --- 1. Free, local, instant checks — reject obvious junk before any

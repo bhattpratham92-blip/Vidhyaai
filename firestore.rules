@@ -158,5 +158,12 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.studentId == request.auth.uid;
       allow update, delete: if false;
     }
+
+    // Wellbeing reflections are private to the student. Server routes write
+    // them, while the student can reopen their own past conversations.
+    match /wellbeingSessions/{sessionId} {
+      allow read: if isSignedIn() && resource.data.studentId == request.auth.uid;
+      allow write: if false;
+    }
   }
 }

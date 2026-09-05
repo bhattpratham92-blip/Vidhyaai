@@ -16,20 +16,25 @@ interface Props {
 export function SessionSidebar({ selectedId, onSelect, onNewChat }: Props) {
   const { profile } = useAuth();
   const [sessions, setSessions] = useState<TutorSession[]>([]);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile) {
+      setSessions([]);
+      return;
+    }
     const q = query(
       collection(db, 'tutorSessions'),
       where('studentId', '==', profile.uid),
       orderBy('updatedAt', 'desc'),
       limit(20)
     );
+    setLoadError('');
     // Live subscription — a newly created session appears here automatically
     // without the student needing to refresh the page.
     const unsubscribe = onSnapshot(q, (snap) => {
       setSessions(snap.docs.map((d) => d.data() as TutorSession));
-    });
+    }, () => setLoadError('Your previous chats could not be loaded. Please refresh and try again.'));
     return unsubscribe;
   }, [profile]);
 
@@ -46,7 +51,8 @@ export function SessionSidebar({ selectedId, onSelect, onNewChat }: Props) {
         </button>
       </div>
       <div className="mt-4 flex-1 overflow-y-auto px-1 pb-3">
-        <p className="px-2 pb-2 text-xs font-bold uppercase tracking-[0.13em] text-ink/40">Recent sessions</p>
+        <p className="px-2 pb-2 text-xs font-bold uppercase tracking-[0.13em] text-ink/40">Previous chats</p>
+        {loadError && <p className="mx-2 mb-2 rounded-lg bg-red-50 px-2 py-2 text-xs text-red-700 dark:bg-red-500/10 dark:text-red-200">{loadError}</p>}
         {sessions.length === 0 && (
           <p className="px-2 py-4 text-xs text-ink/40">
             Your past doubt-solving sessions will show up here.
@@ -68,6 +74,7 @@ export function SessionSidebar({ selectedId, onSelect, onNewChat }: Props) {
               <p className="truncate text-xs text-ink/40">
                 {lastMessage ? lastMessage.content.slice(0, 42) : 'No messages yet'}
               </p>
+              <p className="mt-1 text-[10px] text-ink/35">{new Date(s.updatedAt).toLocaleDateString()}</p>
             </button>
           );
         })}

@@ -12,6 +12,7 @@ export type Board = 'CBSE' | 'ICSE' | 'GSEB' | 'OTHER_STATE_BOARD';
 export type Stream = 'Science' | 'Commerce' | 'Arts';
 
 export type Language = 'en' | 'hi' | 'gu';
+export type GitaAddress = 'sakha' | 'sakhi';
 
 export type ExplainLevel = 'beginner' | 'intermediate' | 'advanced' | 'eli10';
 
@@ -36,6 +37,8 @@ export interface UserProfile {
   // parent-specific
   childIds?: string[];
   preferredLanguage: Language;
+  // A voluntary greeting preference used only by Bhagavad Gita mode.
+  gitaAddress?: GitaAddress;
   createdAt: number;
   lastActiveAt: number;
   // Optional college learning preferences used to personalize weekly plans.
@@ -62,7 +65,10 @@ export interface TrustedContact {
 // ---------------------------------------------------------------------------
 export type GuardianConnectionStatus = 'PENDING' | 'ACCEPTED' | 'STUDENT_CONFIRMED' | 'ACTIVE' | 'REJECTED' | 'REVOKED';
 export type GuardianRiskType = 'SAFE' | 'DISTRESS' | 'SELF_HARM_CONCERN' | 'HARM_TO_OTHERS_CONCERN' | 'IMMINENT_SELF_HARM' | 'IMMINENT_HARM_TO_OTHERS';
-export type GuardianEventStatus = 'NOTIFIED' | 'ACKNOWLEDGED' | 'RESPONDING' | 'RESOLVED';
+// An event is queued first, then becomes visible to the guardian only after
+// the server's short dispatch window has elapsed. This avoids the UI claiming
+// a notification was delivered before it has actually been checked.
+export type GuardianEventStatus = 'PENDING_DISPATCH' | 'NOTIFIED' | 'ACKNOWLEDGED' | 'RESPONDING' | 'RESOLVED';
 
 export interface GuardianPermissions {
   emergencyAlerts: boolean;
@@ -94,6 +100,8 @@ export interface GuardianEvent {
   policyVersion: string;
   sandbox: boolean;
   createdAt: number;
+  notifyAfter?: number;
+  notifiedAt?: number;
   notifiedGuardianIds: string[];
   acknowledgedBy?: string;
   acknowledgedAt?: number;
@@ -291,4 +299,13 @@ export interface CounselingBooking {
   concern: string;
   status: 'requested' | 'confirmed' | 'completed' | 'cancelled';
   createdAt: number;
+}
+
+export interface WellbeingSession {
+  id: string;
+  studentId: string;
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>;
+  gitaMode: boolean;
+  createdAt: number;
+  updatedAt: number;
 }

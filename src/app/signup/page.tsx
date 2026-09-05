@@ -42,6 +42,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     schoolId: 'ganpat-university',
+    gitaAddress: 'sakha' as 'sakha' | 'sakhi',
     trustedContactName: '',
     trustedContactPhone: '',
   });
@@ -67,6 +68,7 @@ export default function SignupPage() {
         name: form.name,
         role: 'student',
         schoolId: form.schoolId,
+        gitaAddress: form.gitaAddress,
         trustedContact: { name: form.trustedContactName.trim(), phone: form.trustedContactPhone.trim() },
       });
       router.push('/tutor');
@@ -105,6 +107,12 @@ export default function SignupPage() {
               className="aurora-input mt-1.5"
             />
           </div>
+
+          <fieldset className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-400/25 dark:bg-amber-500/10">
+            <legend className="px-1 text-sm font-bold">Bhagavad Gita mode greeting</legend>
+            <p className="mt-1 text-xs leading-5 text-ink/70">Choose how the Gita reflection chat should address you. This is used only for “sakha” or “sakhi”.</p>
+            <div className="mt-3 grid grid-cols-2 gap-3"><label className={`cursor-pointer rounded-xl border p-3 text-sm font-semibold ${form.gitaAddress === 'sakha' ? 'border-amber-500 bg-amber-100 text-amber-950 dark:bg-amber-400/15 dark:text-amber-100' : 'border-ink/15'}`}><input className="sr-only" type="radio" name="gitaAddress" value="sakha" checked={form.gitaAddress === 'sakha'} onChange={() => setForm({ ...form, gitaAddress: 'sakha' })} />Boy · Sakha</label><label className={`cursor-pointer rounded-xl border p-3 text-sm font-semibold ${form.gitaAddress === 'sakhi' ? 'border-amber-500 bg-amber-100 text-amber-950 dark:bg-amber-400/15 dark:text-amber-100' : 'border-ink/15'}`}><input className="sr-only" type="radio" name="gitaAddress" value="sakhi" checked={form.gitaAddress === 'sakhi'} onChange={() => setForm({ ...form, gitaAddress: 'sakhi' })} />Girl · Sakhi</label></div>
+          </fieldset>
 
           <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-4 dark:border-violet-400/30 dark:from-violet-500/20 dark:to-indigo-500/20">
             <h2 className="flex items-center gap-2 text-sm font-bold"><HeartHandshake size={17} className="text-violet-600" /> Trusted safety contact</h2>

@@ -185,3 +185,60 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+@keyframes gita-arrival {
+  0% { opacity: 0; transform: translateY(-6px) scale(.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes gita-aura {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, .35); transform: scale(1); }
+  50% { box-shadow: 0 0 0 9px rgba(245, 158, 11, 0); transform: scale(1.04); }
+}
+
+.gita-arrival { animation: gita-arrival .45s ease-out both; }
+.gita-aura { animation: gita-aura 2.2s ease-in-out infinite; }
+
+.gita-mode-control { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 12px 14px; border: 1px solid rgba(180, 123, 20, .2); border-radius: 16px; background: rgba(255, 255, 255, .52); }
+.gita-toggle { position: relative; flex: 0 0 auto; width: 56px; height: 32px; padding: 3px; border: 0; border-radius: 999px; background: #94a3b8; cursor: pointer; transition: background .2s ease, box-shadow .2s ease; }
+.gita-toggle:hover { box-shadow: 0 0 0 4px rgba(245, 158, 11, .15); }.gita-toggle:focus-visible { outline: 3px solid #7c3aed; outline-offset: 3px; }.gita-toggle:disabled { cursor: wait; opacity: .65; }
+.gita-toggle-on { background: linear-gradient(135deg, #f59e0b, #f97316); }.gita-toggle-thumb { display: block; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 5px rgba(15, 23, 42, .3); transform: translateX(0); transition: transform .22s cubic-bezier(.2,.8,.2,1); }.gita-toggle-on .gita-toggle-thumb { transform: translateX(24px); }
+.dark .gita-mode-control { background: rgba(120, 53, 15, .1); border-color: rgba(251, 191, 36, .22); }
+
+.gita-guide { position: relative; width: 32px; height: 32px; }
+.gita-halo { position: absolute; inset: 4px; border-radius: 999px; background: rgba(251, 191, 36, .45); filter: blur(4px); animation: gita-aura 2.2s ease-in-out infinite; }
+.gita-avatar { position: absolute; left: 8px; bottom: 3px; width: 16px; height: 21px; border-radius: 50% 50% 43% 43%; background: linear-gradient(135deg, #38bdf8, #1d4ed8); animation: gita-guide-float 2.5s ease-in-out infinite; }
+.gita-face { position: absolute; left: 4px; top: 8px; width: 8px; height: 5px; border-bottom: 1px solid rgba(255,255,255,.9); border-radius: 50%; }
+.gita-crown { position: absolute; left: 1px; top: -3px; width: 14px; height: 8px; border-radius: 80% 80% 20% 20%; background: #fbbf24; }
+.gita-feather-mark { position: absolute; left: 19px; top: 1px; width: 8px; height: 17px; border-radius: 100% 0 100% 0; background: linear-gradient(150deg, #22c55e 10%, #0ea5e9 45%, #1e3a8a 72%, #facc15 74%); transform: rotate(-25deg); animation: gita-feather-sway 2.6s ease-in-out infinite; }
+.gita-feather-eye { position: absolute; left: 2px; top: 6px; width: 4px; height: 4px; border: 1px solid #facc15; border-radius: 50%; background: #1e3a8a; }
+.gita-flute { position: absolute; left: -4px; top: 15px; width: 25px; height: 3px; border-radius: 10px; background: #f59e0b; box-shadow: 8px 0 0 -1px #92400e; transform: rotate(-8deg); animation: gita-flute-play 1.6s ease-in-out infinite; }
+.gita-sparkle { position: absolute; color: #f59e0b; animation: gita-sparkle 1.8s ease-in-out infinite; }
+.gita-sparkle-one { left: 0; top: 2px; }.gita-sparkle-two { right: 0; bottom: 0; animation-delay: .5s; }
+
+.gita-arrival-overlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; overflow: hidden; cursor: pointer; background: radial-gradient(circle at 50% 38%, #265da8 0, #142d61 35%, #050b23 74%); isolation: isolate; }
+.gita-arrival-overlay::before { content: ''; position: absolute; inset: 0; opacity: .4; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 48px 48px; }
+.gita-arrival-content { position: relative; z-index: 2; width: min(92vw, 460px); text-align: center; animation: gita-arrival-content .8s ease-out both; }
+.gita-storm-cloud { position: absolute; z-index: 1; width: 48vw; height: 23vw; min-width: 280px; min-height: 135px; border-radius: 50%; background: radial-gradient(ellipse at 50% 35%, #5a6c91 0 25%, #273655 58%, transparent 70%); filter: blur(5px); opacity: .72; animation: gita-cloud-drift 3.3s ease-in-out infinite alternate; }
+.gita-storm-cloud-left { top: 5%; left: -12%; }.gita-storm-cloud-right { right: -12%; bottom: 2%; animation-delay: -1.4s; }
+.gita-lightning { position: absolute; z-index: 1; width: 3px; height: 39vh; opacity: 0; background: #e5f7ff; box-shadow: 0 0 10px 4px #67e8f9, 0 0 30px 10px #3b82f6; clip-path: polygon(45% 0, 100% 0, 64% 38%, 95% 38%, 8% 100%, 34% 53%, 0 53%); animation: gita-lightning 2.8s steps(1, end) infinite; }
+.gita-lightning-left { left: 16%; top: 10%; transform: rotate(12deg); }.gita-lightning-right { right: 18%; top: 24%; transform: rotate(-13deg); animation-delay: 1s; }
+.gita-krishna-arrival { position: relative; width: 170px; height: 230px; margin: auto; filter: drop-shadow(0 12px 20px rgba(0,0,0,.38)); animation: gita-krishna-enter .85s cubic-bezier(.2,.8,.2,1) both; }
+.gita-arrival-halo { position: absolute; border: 2px solid rgba(251, 191, 36, .65); border-radius: 999px; left: 50%; top: 67px; transform: translateX(-50%); }.gita-arrival-halo-one { width: 130px; height: 130px; animation: gita-halo-grow 2s ease-out infinite; }.gita-arrival-halo-two { width: 178px; height: 178px; top: 43px; animation: gita-halo-grow 2s ease-out .8s infinite; }
+.gita-arrival-head { position: absolute; z-index: 3; left: 46px; top: 40px; width: 78px; height: 85px; border-radius: 47% 47% 45% 45%; background: linear-gradient(120deg, #60c8f2, #1e5db6); }.gita-arrival-hair { position: absolute; inset: -9px -5px 45px; border-radius: 50% 50% 35% 35%; background: #142152; }.gita-arrival-eyes { position: absolute; left: 17px; top: 43px; width: 45px; height: 5px; border-bottom: 2px solid #10204a; border-radius: 50%; }.gita-arrival-smile { position: absolute; left: 29px; top: 61px; width: 20px; height: 8px; border-bottom: 2px solid #e0f2fe; border-radius: 50%; }
+.gita-arrival-crown { position: absolute; z-index: 4; left: 54px; top: 25px; width: 62px; height: 29px; border-radius: 60% 60% 20% 20%; background: linear-gradient(135deg, #fde68a, #d97706); box-shadow: 0 3px 0 #92400e; }.gita-arrival-feather { position: absolute; z-index: 5; left: 106px; top: 0; width: 27px; height: 60px; border-radius: 100% 0 100% 0; background: linear-gradient(150deg, #4ade80 8%, #0ea5e9 43%, #172554 70%, #facc15 74%); transform: rotate(-25deg); animation: gita-feather-sway 2.6s ease-in-out infinite; }.gita-arrival-feather span { position: absolute; left: 7px; top: 22px; width: 13px; height: 13px; border: 3px solid #facc15; border-radius: 50%; background: #172554; }
+.gita-arrival-body { position: absolute; z-index: 2; left: 27px; bottom: 0; width: 116px; height: 128px; border-radius: 55% 55% 18% 18%; background: linear-gradient(135deg, #1e40af, #38bdf8); }.gita-arrival-sash { position: absolute; left: 49px; width: 25px; height: 128px; background: #fbbf24; transform: skewX(-15deg); }.gita-arrival-flute { position: absolute; left: -18px; top: 51px; width: 150px; height: 10px; border-radius: 99px; background: linear-gradient(#fcd34d, #b45309); transform: rotate(-9deg); box-shadow: 37px 0 0 -3px #78350f, 78px 0 0 -3px #78350f; animation: gita-flute-play 1.6s ease-in-out infinite; }
+
+@keyframes gita-arrival-content { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes gita-cloud-drift { from { transform: translateX(-14px); } to { transform: translateX(14px); } }
+@keyframes gita-lightning { 0%, 12%, 25%, 100% { opacity: 0; } 13%, 14%, 23% { opacity: .95; } }
+@keyframes gita-krishna-enter { from { opacity: 0; transform: translateY(35px) scale(.72); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes gita-halo-grow { from { opacity: .8; transform: translateX(-50%) scale(.7); } to { opacity: 0; transform: translateX(-50%) scale(1.2); } }
+
+@keyframes gita-guide-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes gita-feather-sway { 0%, 100% { transform: rotate(-25deg); } 50% { transform: rotate(-13deg); } }
+@keyframes gita-flute-play { 0%, 100% { transform: rotate(-8deg) translateX(0); } 50% { transform: rotate(-8deg) translateX(1px); } }
+@keyframes gita-sparkle { 0%, 100% { opacity: .2; transform: scale(.75); } 50% { opacity: 1; transform: scale(1.1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gita-arrival, .gita-aura, .gita-avatar, .gita-feather-mark, .gita-flute, .gita-sparkle, .gita-arrival-content, .gita-storm-cloud, .gita-lightning, .gita-krishna-arrival, .gita-arrival-halo, .gita-arrival-feather, .gita-arrival-flute { animation: none; }
+}

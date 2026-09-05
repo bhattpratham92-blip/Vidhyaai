@@ -183,6 +183,7 @@ export function ChatInterface({ initialSession }: Props) {
         )
       );
       if (typeof data.remaining === 'number') setRemaining(data.remaining);
+      if (data.code === 'immediate_safety_concern') setShowCrisisSupport(true);
       if (data.code === 'cooldown' && data.retryAfterMs) {
         setCooldownUntil(Date.now() + data.retryAfterMs);
       }
