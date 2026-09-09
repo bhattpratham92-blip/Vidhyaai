@@ -50,7 +50,7 @@ function CounselingContent() {
   const [chatInput, setChatInput] = useState('');
   const [chatError, setChatError] = useState('');
   const [chatting, setChatting] = useState(false);
-  const [showCrisisSupport, setShowCrisisSupport] = useState(false);
+  const [showCrisisSupport, setShowCrisisSupport] = useState(false); const [guardianAlert, setGuardianAlert] = useState<'created' | 'already_active' | 'unavailable' | undefined>();
   const [wellbeingRemaining, setWellbeingRemaining] = useState<number | null>(null);
   const [wellbeingLimit, setWellbeingLimit] = useState(20);
   const [gitaMode, setGitaMode] = useState(false);
@@ -150,7 +150,7 @@ function CounselingContent() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Unable to reply right now.');
       setMessages((current) => [...current, { role: 'assistant', content: data.message }]);
-      if (data.safetyConcern) setShowCrisisSupport(true);
+      if (data.safetyConcern) { setGuardianAlert(data.guardianAlert); setShowCrisisSupport(true); }
       if (typeof data.remaining === 'number') setWellbeingRemaining(data.remaining);
       if (typeof data.sessionId === 'string') {
         setSessionId(data.sessionId);
@@ -305,7 +305,7 @@ function CounselingContent() {
       </section>
 
       {isBookingOpen && <div className="fixed inset-0 z-50 flex items-end bg-ink/40 p-0 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="booking-title"><div className="w-full max-w-lg rounded-t-3xl bg-surface p-6 shadow-2xl sm:rounded-3xl"><div className="flex items-start justify-between"><div><h2 id="booking-title" className="font-display text-2xl font-semibold">Book a session</h2><p className="mt-1 text-sm text-ink/60">Choose what feels most comfortable for you.</p></div><button onClick={() => setIsBookingOpen(false)} className="rounded-full p-2 text-ink/60 hover:bg-mist" aria-label="Close booking form"><X size={20} /></button></div><form onSubmit={submitBooking} className="mt-6 space-y-5"><fieldset><legend className="text-sm font-semibold">Meeting type</legend><div className="mt-2 grid grid-cols-2 gap-3"><button type="button" onClick={() => setFormat('online')} className={`rounded-xl border p-3 text-left text-sm font-semibold ${format === 'online' ? 'border-indigo bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-200' : 'border-ink/15'}`}><Video size={18} className="mb-2" />Online</button><button type="button" onClick={() => setFormat('in_person')} className={`rounded-xl border p-3 text-left text-sm font-semibold ${format === 'in_person' ? 'border-indigo bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-200' : 'border-ink/15'}`}><MapPin size={18} className="mb-2" />In person</button></div></fieldset><div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">Preferred date<input type="date" min={new Date().toISOString().slice(0, 10)} value={preferredDate} onChange={(event) => setPreferredDate(event.target.value)} className="mt-1.5 w-full rounded-lg border border-ink/15 bg-paper px-3 py-2 font-normal" /></label><label className="text-sm font-semibold">Preferred time<input type="time" value={preferredTime} onChange={(event) => setPreferredTime(event.target.value)} className="mt-1.5 w-full rounded-lg border border-ink/15 bg-paper px-3 py-2 font-normal" /></label></div><label className="block text-sm font-semibold">What would you like support with?<select value={concern} onChange={(event) => setConcern(event.target.value)} className="mt-1.5 w-full rounded-lg border border-ink/15 bg-paper px-3 py-2 font-normal">{supportTopics.map((topic) => <option key={topic}>{topic}</option>)}</select></label><label className="block text-sm font-semibold">Anything you want the expert to know? <span className="font-normal text-ink/50">(optional)</span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={3} maxLength={500} className="mt-1.5 w-full resize-none rounded-lg border border-ink/15 bg-paper px-3 py-2 font-normal" placeholder="You can keep this brief." /></label>{formError && <p className="text-sm text-red-600">{formError}</p>}<button disabled={submitting} className="w-full rounded-full bg-indigo px-5 py-3 text-sm font-bold text-white hover:bg-indigo-600 disabled:opacity-60">{submitting ? 'Sending request…' : 'Send session request'}</button></form></div></div>}
-      {showCrisisSupport && <CrisisSafetyModal contact={profile?.trustedContact} onClose={() => setShowCrisisSupport(false)} />}
+      {showCrisisSupport && <CrisisSafetyModal contact={profile?.trustedContact} guardianAlert={guardianAlert} onClose={() => setShowCrisisSupport(false)} />}
       {showGitaArrival && <div className="gita-arrival-overlay" role="dialog" aria-modal="true" aria-label="Bhagavad Gita mode welcome" onClick={finishGitaArrival} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') finishGitaArrival(); }} tabIndex={0}>
         <div className="gita-storm-cloud gita-storm-cloud-left" /><div className="gita-storm-cloud gita-storm-cloud-right" />
         <span className="gita-lightning gita-lightning-left" /><span className="gita-lightning gita-lightning-right" />

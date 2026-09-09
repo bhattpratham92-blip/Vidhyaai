@@ -121,10 +121,15 @@ export async function POST(req: NextRequest) {
     if (semanticRisk === 'IMMINENT_SELF' || semanticRisk === 'IMMINENT_OTHER') {
       // Server-side only: the counselling UI or model can never select a
       // Guardian, forge an alert payload, or notify somebody directly.
-      await createGuardianSandboxEvent(studentId, latest.content, semanticRisk === 'IMMINENT_OTHER' ? 'IMMINENT_HARM_TO_OTHERS' : 'IMMINENT_SELF_HARM');
+      const guardianEvent = await createGuardianSandboxEvent(studentId, latest.content, semanticRisk === 'IMMINENT_OTHER' ? 'IMMINENT_HARM_TO_OTHERS' : 'IMMINENT_SELF_HARM');
       const message = body.gitaMode ? `Sakha, ${CRISIS_REPLY}` : CRISIS_REPLY;
       await saveReflection([...messages, { role: 'assistant', content: message }]);
-      return Response.json({ message, safetyConcern: true, sessionId: sessionRef.id });
+      const guardianAlert = guardianEvent.eventCreated
+        ? 'created'
+        : guardianEvent.reason === 'existing_event'
+          ? 'already_active'
+          : 'unavailable';
+      return Response.json({ message, safetyConcern: true, guardianAlert, sessionId: sessionRef.id });
     }
     if (semanticRisk === 'CHECK_IN' && !checkInAlreadyAsked) {
       const message = body.gitaMode ? `Sakha, ${CHECK_IN_REPLY}` : CHECK_IN_REPLY;

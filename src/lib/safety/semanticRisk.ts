@@ -27,8 +27,11 @@ Student messages:\n---\n${recentConversation.slice(-6000)}\n---`;
 
   try {
     const result = await getRelevanceModel().generateContent(prompt);
-    const label = result.response.text().trim().toUpperCase();
-    return label === 'IMMINENT_SELF' || label === 'IMMINENT_OTHER' || label === 'CHECK_IN' ? label : 'SAFE';
+    // Models normally return exactly the requested word, but accepting the
+    // first valid label also preserves the safety route when it adds harmless
+    // formatting such as "Risk: IMMINENT_SELF".
+    const label = result.response.text().toUpperCase().match(/\b(IMMINENT_SELF|IMMINENT_OTHER|CHECK_IN|SAFE)\b/)?.[1];
+    return label === 'IMMINENT_SELF' || label === 'IMMINENT_OTHER' || label === 'CHECK_IN' || label === 'SAFE' ? label : 'SAFE';
   } catch (error) {
     // The deterministic safety pattern remains active if the classifier is
     // unavailable; a transient model issue must not break the chat endpoint.
