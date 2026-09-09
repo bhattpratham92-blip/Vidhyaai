@@ -9,7 +9,15 @@ export const SELF_HARM_PATTERN = /\b(kill myself|end my life|want to die|hurt my
 
 export const HARM_TO_OTHERS_PATTERN = /\b(kill (him|her|them|someone|anyone|everyone|my friend|my family|my dog|my cat|my pet|an animal)|hurt (him|her|them|someone|anyone|everyone|my friend|my family|my dog|my cat|my pet|an animal)|harm (him|her|them|someone|anyone|everyone|my friend|my family|my dog|my cat|my pet|an animal)|stab (him|her|them|someone|anyone|everyone|an animal)|shoot (him|her|them|someone|anyone|everyone|an animal)|poison (him|her|them|someone|anyone|everyone|an animal)|attack (him|her|them|someone|anyone|everyone|an animal)|i (want|plan|am planning|will|am going|am gonna|might|think|am thinking) to (kill|hurt|harm|stab|shoot|poison|attack))\b/i;
 
-export const IMMEDIATE_SAFETY_PATTERN = new RegExp(`${SELF_HARM_PATTERN.source}|${HARM_TO_OTHERS_PATTERN.source}`, 'i');
+// Intent-first patterns catch the same risk expressed with different grammar
+// or extra context, for example “after exams I might take my own life” or
+// “I am thinking about hurting my dog.” They intentionally require a personal
+// intent signal, so educational discussion or fiction alone does not alert a
+// guardian.
+const SELF_HARM_INTENT_PATTERN = /\b(?:i(?:'m| am)?\s+)?(?:want|need|plan|am planning|will|am going|am gonna|going|gonna|might|think|am thinking|thinking|thoughts?)\s+(?:to |about |of )?(?:self[- ]?harm|suicide|die|kill myself|take my (?:own )?life|end my life|end it|hurt myself|harm myself|injure myself|cut myself|hang myself|overdose)\b/i;
+const HARM_LIVING_BEING_INTENT_PATTERN = /\b(?:i(?:'m| am)?\s+)?(?:want|need|plan|am planning|will|am going|am gonna|going|gonna|might|think|am thinking|thinking)\s+(?:to |about )?(?:kill|killing|hurt|hurting|harm|harming|injure|injuring|stab|stabbing|shoot|shooting|poison|poisoning|attack|attacking)(?:\s+(?:him|her|them|someone|anyone|everyone|a person|a human|my friend|my family|my dog|my cat|my pet|an animal|a living being))?\b/i;
+
+export const IMMEDIATE_SAFETY_PATTERN = new RegExp(`${SELF_HARM_PATTERN.source}|${SELF_HARM_INTENT_PATTERN.source}|${HARM_TO_OTHERS_PATTERN.source}|${HARM_LIVING_BEING_INTENT_PATTERN.source}`, 'i');
 
 // A single, ordinary feeling is not evidence of imminent danger. This guard
 // prevents a probabilistic semantic classifier from turning messages such as
@@ -23,7 +31,7 @@ export function hasImmediateSafetyConcern(text: string) {
 }
 
 export function hasHarmToOthersConcern(text: string) {
-  return HARM_TO_OTHERS_PATTERN.test(text);
+  return HARM_TO_OTHERS_PATTERN.test(text) || HARM_LIVING_BEING_INTENT_PATTERN.test(text);
 }
 
 export function isOrdinaryDistressOnly(text: string) {
