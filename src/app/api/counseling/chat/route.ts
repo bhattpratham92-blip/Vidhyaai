@@ -126,6 +126,8 @@ export async function POST(req: NextRequest) {
       await saveReflection([...messages, { role: 'assistant', content: message }]);
       const guardianAlert = guardianEvent.eventCreated
         ? 'created'
+        : guardianEvent.eventRefreshed
+          ? 'refreshed'
         : guardianEvent.reason === 'existing_event'
           ? 'already_active'
           : 'unavailable';

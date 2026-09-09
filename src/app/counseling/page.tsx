@@ -50,7 +50,7 @@ function CounselingContent() {
   const [chatInput, setChatInput] = useState('');
   const [chatError, setChatError] = useState('');
   const [chatting, setChatting] = useState(false);
-  const [showCrisisSupport, setShowCrisisSupport] = useState(false); const [guardianAlert, setGuardianAlert] = useState<'created' | 'already_active' | 'unavailable' | undefined>();
+  const [showCrisisSupport, setShowCrisisSupport] = useState(false); const [guardianAlert, setGuardianAlert] = useState<'created' | 'refreshed' | 'already_active' | 'unavailable' | undefined>();
   const [wellbeingRemaining, setWellbeingRemaining] = useState<number | null>(null);
   const [wellbeingLimit, setWellbeingLimit] = useState(20);
   const [gitaMode, setGitaMode] = useState(false);

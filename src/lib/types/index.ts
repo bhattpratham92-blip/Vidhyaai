@@ -101,6 +101,8 @@ export interface GuardianEvent {
   createdAt: number;
   notifyAfter?: number;
   notifiedAt?: number;
+  lastTriggeredAt?: number;
+  triggerCount?: number;
   notifiedGuardianIds: string[];
   acknowledgedBy?: string;
   acknowledgedAt?: number;
