@@ -10,12 +10,18 @@ export async function createGuardianSandboxEvent(studentId: string, message: str
   try {
     if (!assessedRisk && !hasImmediateSafetyConcern(message)) return { assessed: true, eventCreated: false as const };
     const db = adminDb();
-    const profile = (await db.collection('users').doc(studentId).get()).data() as UserProfile | undefined;
+    // These independent reads run together so a direct safety signal reaches
+    // the Guardian dashboard in the shortest possible server round trips.
+    const [profileSnapshot, connectionSnapshot, previousSnapshot] = await Promise.all([
+      db.collection('users').doc(studentId).get(),
+      db.collection('guardianConnections').where('studentId', '==', studentId).get(),
+      db.collection('guardianEvents').where('studentId', '==', studentId).get(),
+    ]);
+    const profile = profileSnapshot.data() as UserProfile | undefined;
     if (profile?.role !== 'student') return { assessed: true, eventCreated: false as const };
-    const connectionSnapshot = await db.collection('guardianConnections').where('studentId', '==', studentId).get();
     const activeConnections = connectionSnapshot.docs.filter((connection) => connection.data().status === 'ACTIVE' && connection.data().permissions?.emergencyAlerts === true);
     if (activeConnections.length === 0) return { assessed: true, eventCreated: false as const, reason: 'no_active_guardian' };
-    const previous = (await db.collection('guardianEvents').where('studentId', '==', studentId).get()).docs
+    const previous = previousSnapshot.docs
       .map((event) => event.data())
       .sort((a, b) => b.createdAt - a.createdAt)[0];
     if (previous && Date.now() - previous.createdAt < 15 * 60 * 1000 && previous.status !== 'RESOLVED') return { assessed: true, eventCreated: false as const, reason: 'existing_event' };
