@@ -103,21 +103,22 @@ export async function POST(req: NextRequest) {
       await sessionRef.set({ id: sessionRef.id, studentId, messages: conversation, gitaMode: Boolean(body.gitaMode), createdAt, updatedAt: Date.now() });
     }
     const recentUserContext = messages.filter((message) => message.role === 'user').map((message) => message.content).join('\n');
-    // A check-in is a one-time interruption. We still assess the full student
-    // context on later turns: a short reply such as “yes” is meaningful only
-    // together with the preceding message. The guard below prevents a
-    // non-imminent result from repeating the check-in question.
+    // A check-in is a one-time interruption. Before an emergency is raised,
+    // a short reply such as “yes” remains meaningful with the earlier student
+    // context. The guard below prevents repeating the check-in question.
     const checkInAlreadyAsked = messages.slice(0, -1).some((message) => message.role === 'assistant' && message.content.includes(CHECK_IN_MARKER));
+    const emergencyAlreadyRaised = messages.slice(0, -1).some((message) => message.role === 'assistant' && message.content.includes(CRISIS_REPLY));
     const directRisk = hasHarmToOthersConcern(latest.content)
       ? 'IMMINENT_OTHER'
       : hasImmediateSafetyConcern(latest.content)
         ? 'IMMINENT_SELF'
         : null;
-    // Use the full recent conversation on the first assessment, so indirect
-    // but credible imminent risk can be identified even when the final
-    // message does not contain a simple keyword. This shared server route is
-    // used by both normal wellbeing chat and Bhagavad Gita mode.
-    const semanticRisk = directRisk || await assessSemanticSafetyRisk(recentUserContext);
+    // Use the full recent conversation until an emergency has been raised, so
+    // indirect risk can be understood in context. Afterwards, evaluate only
+    // the new message: prior crisis wording must not turn a safe follow-up
+    // such as “I am planning to hang out with friends” into another alert.
+    // Fresh explicit risk still takes the direct, immediate path above.
+    const semanticRisk = directRisk || await assessSemanticSafetyRisk(emergencyAlreadyRaised ? latest.content : recentUserContext);
     if (semanticRisk === 'IMMINENT_SELF' || semanticRisk === 'IMMINENT_OTHER') {
       // Server-side only: the counselling UI or model can never select a
       // Guardian, forge an alert payload, or notify somebody directly.
