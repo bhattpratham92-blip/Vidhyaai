@@ -23,8 +23,10 @@ protection. The application never stores or sees OTP values.
 
 ## Sandbox safety mode
 
-The Guardian safety route currently creates **sandbox database events only**.
-It does not send push notifications, SMS, place calls, or collect location.
+The Guardian safety route currently creates **sandbox dashboard alerts only**.
+An authorized emergency signal is visible when the verified Guardian next
+opens or refreshes the Guardian dashboard. It does not send push
+notifications, SMS, place calls, or collect location.
 Do not turn it into a production emergency notification system until all of
 the following are complete:
 

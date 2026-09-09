@@ -108,11 +108,16 @@ export async function POST(req: NextRequest) {
     // Without this guard, the earlier distress text keeps being reclassified
     // and produces the same question on every reply.
     const checkInAlreadyAsked = messages.slice(0, -1).some((message) => message.role === 'assistant' && message.content.includes(CHECK_IN_MARKER));
-    const semanticRisk = hasHarmToOthersConcern(latest.content)
+    const directRisk = hasHarmToOthersConcern(latest.content)
       ? 'IMMINENT_OTHER'
       : hasImmediateSafetyConcern(latest.content)
         ? 'IMMINENT_SELF'
-        : await assessSemanticSafetyRisk(checkInAlreadyAsked ? latest.content : recentUserContext);
+        : null;
+    const classifierRisk = directRisk || await assessSemanticSafetyRisk(checkInAlreadyAsked ? latest.content : recentUserContext);
+    // A model-only urgent label is not enough to interrupt the student with an
+    // emergency modal or contact a guardian. It becomes a private check-in;
+    // only the deterministic security layer can escalate immediately.
+    const semanticRisk = directRisk ? classifierRisk : classifierRisk === 'IMMINENT_SELF' || classifierRisk === 'IMMINENT_OTHER' ? 'CHECK_IN' : classifierRisk;
     if (semanticRisk === 'IMMINENT_SELF' || semanticRisk === 'IMMINENT_OTHER') {
       // Server-side only: the counselling UI or model can never select a
       // Guardian, forge an alert payload, or notify somebody directly.

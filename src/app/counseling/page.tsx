@@ -8,7 +8,6 @@ import { Navbar } from '@/components/layout/Navbar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { CrisisSafetyModal } from '@/components/safety/CrisisSafetyModal';
 import { KrishnaArrivalAnimation, KrishnaGuideAnimation } from '@/components/counseling/KrishnaGuideAnimation';
-import { hasImmediateSafetyConcern } from '@/lib/safety/crisis';
 import { auth, db } from '@/lib/firebase/client';
 import type { CounselingBooking, CounselingFormat, WellbeingSession } from '@/lib/types';
 
@@ -132,21 +131,10 @@ function CounselingContent() {
     event.preventDefault();
     const content = chatInput.trim();
     if (!content || chatting || wellbeingRemaining === 0) return;
-    if (hasImmediateSafetyConcern(content)) {
-      setMessages((current) => [...current, { role: 'user', content }]);
-      setChatInput('');
-      setShowCrisisSupport(true);
-      // The browser does not decide risk or choose recipients. It asks the
-      // server to independently assess the message; sandbox mode never sends
-      // a real alert while this safety architecture is being tested.
-      void auth.currentUser?.getIdToken().then((token) => fetch('/api/guardian/safety', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ message: content }),
-      })).catch(() => undefined);
-      return;
-    }
-
+    // Every message, including an explicit immediate-risk signal, goes to the
+    // same authenticated server route. This keeps normal and Gita mode
+    // identical and prevents a fire-and-forget browser request from losing a
+    // guardian event.
     const updatedMessages = [...messages, { role: 'user' as const, content }];
     setMessages(updatedMessages);
     setChatInput('');

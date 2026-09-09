@@ -60,11 +60,11 @@ export async function POST(req: NextRequest) {
   // Indirect wording can still communicate an urgent risk. This server-side
   // triage runs before the normal tutor, cache, and session paths so a
   // modified browser cannot bypass the support flow.
-  const semanticRisk = await assessSemanticSafetyRisk(body.message);
-  if (semanticRisk === 'IMMINENT_SELF' || semanticRisk === 'IMMINENT_OTHER') {
-    await createGuardianSandboxEvent(decoded.uid, body.message, semanticRisk === 'IMMINENT_OTHER' ? 'IMMINENT_HARM_TO_OTHERS' : 'IMMINENT_SELF_HARM');
-    return Response.json({ error: 'Immediate safety support is required.', code: 'immediate_safety_concern' }, { status: 400 });
-  }
+  const classifierRisk = await assessSemanticSafetyRisk(body.message);
+  // Only a deterministic explicit signal can create an immediate guardian
+  // event. A model-only risk guess receives a safety check-in instead, which
+  // avoids false emergency popups for ordinary discussion.
+  const semanticRisk = classifierRisk === 'IMMINENT_SELF' || classifierRisk === 'IMMINENT_OTHER' ? 'CHECK_IN' : classifierRisk;
   if (semanticRisk === 'CHECK_IN') {
     return Response.json({ error: 'Before we continue: are you thinking about hurting yourself or someone else right now, or do you feel unable to stay safe? If yes, contact emergency services or a trusted person who can be with you now.', code: 'safety_check_in' }, { status: 400 });
   }

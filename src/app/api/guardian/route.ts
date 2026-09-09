@@ -39,9 +39,8 @@ export async function GET(request: NextRequest) {
     const eventIds = new Set(connections.filter((item) => item.status === 'ACTIVE').map((item) => item.studentId));
     // Sort this small, Guardian-scoped result in memory so local development
     // and new Firebase projects do not need a composite Firestore index.
-    // The dashboard is the sandbox notification channel. Its three-second
-    // heartbeat first promotes only server-flagged events whose hold window
-    // has elapsed, then returns them to the verified guardian.
+    // Keep the legacy promotion pass for events created by earlier versions.
+    // New server-flagged events are visible immediately in this dashboard.
     await dispatchDueGuardianEvents([...eventIds]);
     const events = eventIds.size
       ? (await db.collection('guardianEvents').where('studentId', 'in', [...eventIds].slice(0, 10)).get()).docs

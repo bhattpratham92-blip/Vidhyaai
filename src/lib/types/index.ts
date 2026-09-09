@@ -65,9 +65,8 @@ export interface TrustedContact {
 // ---------------------------------------------------------------------------
 export type GuardianConnectionStatus = 'PENDING' | 'ACCEPTED' | 'STUDENT_CONFIRMED' | 'ACTIVE' | 'REJECTED' | 'REVOKED';
 export type GuardianRiskType = 'SAFE' | 'DISTRESS' | 'SELF_HARM_CONCERN' | 'HARM_TO_OTHERS_CONCERN' | 'IMMINENT_SELF_HARM' | 'IMMINENT_HARM_TO_OTHERS';
-// An event is queued first, then becomes visible to the guardian only after
-// the server's short dispatch window has elapsed. This avoids the UI claiming
-// a notification was delivered before it has actually been checked.
+// NOTIFIED means the authorized alert is visible in the Guardian dashboard.
+// It does not mean an SMS, push notification, or phone call was delivered.
 export type GuardianEventStatus = 'PENDING_DISPATCH' | 'NOTIFIED' | 'ACKNOWLEDGED' | 'RESPONDING' | 'RESOLVED';
 
 export interface GuardianPermissions {

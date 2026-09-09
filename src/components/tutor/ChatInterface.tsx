@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { BrainCircuit, Lightbulb, PanelLeft, Send, Sparkles } from 'lucide-react';
 import { CrisisSafetyModal } from '@/components/safety/CrisisSafetyModal';
-import { hasImmediateSafetyConcern } from '@/lib/safety/crisis';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { validateQuestionFormat } from '@/lib/usage/validation';
 import { LevelSelector } from './LevelSelector';
@@ -100,19 +99,6 @@ export function ChatInterface({ initialSession, onOpenHistory }: Props) {
 
   async function handleSendText() {
     const text = input;
-    if (hasImmediateSafetyConcern(text)) {
-      setInput('');
-      setShowCrisisSupport(true);
-      // Keep Tutor and Counselling consistent: only the server evaluates the
-      // message and creates a sandbox Guardian event for an active connection.
-      void firebaseUser?.getIdToken().then((token) => fetch('/api/guardian/safety', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ message: text }),
-      })).catch(() => undefined);
-      return;
-    }
-
     // Instant, zero-network-call rejection for obvious junk — same check
     // the server runs, imported directly since validation.ts has no
     // server-only dependencies. The server re-validates regardless; this is
