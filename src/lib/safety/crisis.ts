@@ -11,10 +11,21 @@ export const HARM_TO_OTHERS_PATTERN = /\b(kill (him|her|them|someone|anyone|my f
 
 export const IMMEDIATE_SAFETY_PATTERN = new RegExp(`${SELF_HARM_PATTERN.source}|${HARM_TO_OTHERS_PATTERN.source}`, 'i');
 
+// A single, ordinary feeling is not evidence of imminent danger. This guard
+// prevents a probabilistic semantic classifier from turning messages such as
+// “I am feeling sad” into an emergency alert. It deliberately matches only a
+// complete, short statement; any added intent, plan, act, or threat continues
+// through the full safety assessment below.
+const ORDINARY_DISTRESS_ONLY_PATTERN = /^\s*(?:i(?:'m| am)?\s*)?(?:(?:am )?feeling|feel)?\s*(?:sad|stressed|anxious|worried|overwhelmed|lonely|tired|upset|down|depressed)(?:\s+(?:today|lately|right now))?[.!?]*\s*$/i;
+
 export function hasImmediateSafetyConcern(text: string) {
   return IMMEDIATE_SAFETY_PATTERN.test(text);
 }
 
 export function hasHarmToOthersConcern(text: string) {
   return HARM_TO_OTHERS_PATTERN.test(text);
+}
+
+export function isOrdinaryDistressOnly(text: string) {
+  return !hasImmediateSafetyConcern(text) && ORDINARY_DISTRESS_ONLY_PATTERN.test(text);
 }

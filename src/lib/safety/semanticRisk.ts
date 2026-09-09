@@ -1,4 +1,5 @@
 import { getRelevanceModel } from '@/lib/gemini/client';
+import { isOrdinaryDistressOnly } from './crisis';
 
 export type SemanticSafetyRisk = 'IMMINENT_SELF' | 'IMMINENT_OTHER' | 'CHECK_IN' | 'SAFE';
 
@@ -8,6 +9,12 @@ export type SemanticSafetyRisk = 'IMMINENT_SELF' | 'IMMINENT_OTHER' | 'CHECK_IN'
  * immediate real-world support instead of continuing a normal AI chat.
  */
 export async function assessSemanticSafetyRisk(recentConversation: string): Promise<SemanticSafetyRisk> {
+  // Do not ask a generative classifier to determine whether a simple sentence
+  // like “I am feeling sad” is an emergency. It is ordinary distress, which
+  // the wellbeing companion can support without showing the crisis modal or
+  // notifying a guardian.
+  if (isOrdinaryDistressOnly(recentConversation)) return 'SAFE';
+
   const prompt = `Classify safety risk in the student's messages below. Return exactly one word: IMMINENT_SELF, IMMINENT_OTHER, CHECK_IN, or SAFE.
 
 Return IMMINENT_SELF only for a credible, current intent, plan, attempt, access to means with intent, or stated inability to stay safe.
