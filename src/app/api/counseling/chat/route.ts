@@ -103,21 +103,21 @@ export async function POST(req: NextRequest) {
       await sessionRef.set({ id: sessionRef.id, studentId, messages: conversation, gitaMode: Boolean(body.gitaMode), createdAt, updatedAt: Date.now() });
     }
     const recentUserContext = messages.filter((message) => message.role === 'user').map((message) => message.content).join('\n');
-    // A check-in is a one-time interruption. On the next user turn, assess
-    // only new imminent signals; otherwise continue the supportive chat.
-    // Without this guard, the earlier distress text keeps being reclassified
-    // and produces the same question on every reply.
+    // A check-in is a one-time interruption. We still assess the full student
+    // context on later turns: a short reply such as “yes” is meaningful only
+    // together with the preceding message. The guard below prevents a
+    // non-imminent result from repeating the check-in question.
     const checkInAlreadyAsked = messages.slice(0, -1).some((message) => message.role === 'assistant' && message.content.includes(CHECK_IN_MARKER));
     const directRisk = hasHarmToOthersConcern(latest.content)
       ? 'IMMINENT_OTHER'
       : hasImmediateSafetyConcern(latest.content)
         ? 'IMMINENT_SELF'
         : null;
-    const classifierRisk = directRisk || await assessSemanticSafetyRisk(checkInAlreadyAsked ? latest.content : recentUserContext);
-    // A model-only urgent label is not enough to interrupt the student with an
-    // emergency modal or contact a guardian. It becomes a private check-in;
-    // only the deterministic security layer can escalate immediately.
-    const semanticRisk = directRisk ? classifierRisk : classifierRisk === 'IMMINENT_SELF' || classifierRisk === 'IMMINENT_OTHER' ? 'CHECK_IN' : classifierRisk;
+    // Use the full recent conversation on the first assessment, so indirect
+    // but credible imminent risk can be identified even when the final
+    // message does not contain a simple keyword. This shared server route is
+    // used by both normal wellbeing chat and Bhagavad Gita mode.
+    const semanticRisk = directRisk || await assessSemanticSafetyRisk(recentUserContext);
     if (semanticRisk === 'IMMINENT_SELF' || semanticRisk === 'IMMINENT_OTHER') {
       // Server-side only: the counselling UI or model can never select a
       // Guardian, forge an alert payload, or notify somebody directly.
